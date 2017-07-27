@@ -736,8 +736,16 @@ if ((millis() - touch1DebounceTime) > 200) {
   }
   if (isPressTouch1) {
       isPressTouch1 = false;
-      if (pinControl1State == LOW) { pinControl1State = HIGH;Serial.println("pinControl1State = HIGH"); sendConfirmtoRetained("{\"Relay\":\1\",\"Action\":\"off\"}","1"); }
-      else{ pinControl1State = LOW;Serial.println("pinControl1State = LOW"); sendConfirmtoRetained("{\"Relay\":\"1\",\"Action\":\"on\"}","1");}
+      if (pinControl1State == LOW) {
+        pinControl1State = HIGH;
+        Serial.println("pinControl1State = HIGH");
+        sendConfirmtoRetained("{\"Relay\":\1\",\"Action\":\"off\"}","1");
+        }
+      else{
+        pinControl1State = LOW;
+        Serial.println("pinControl1State = LOW");
+        sendConfirmtoRetained("{\"Relay\":\"1\",\"Action\":\"on\"}","1");
+        }
       digitalWrite(pinControl1, pinControl1State);
     }
   lasttouch1ReadingState = touch1Reading;
@@ -765,8 +773,16 @@ if ((millis() - touch2DebounceTime) > 200) {
   }
   if (isPressTouch2) {
       isPressTouch2 = false;
-      if (pinControl2State == LOW) { pinControl2State = HIGH;Serial.println ("pinControl2State = HIGH");sendConfirmtoRetained("{\"Relay\":\2\",\"Action\":\"off\"}","2"); }
-      else {pinControl2State = LOW; Serial.println("pinControl2State = LOW"); sendConfirmtoRetained("{\"Relay\":\"2\",\"Action\":\"on\"}","2"); }    
+      if (pinControl2State == LOW) {
+        pinControl2State = HIGH;
+        Serial.println ("pinControl2State = HIGH");
+        sendConfirmtoRetained("{\"Relay\":\2\",\"Action\":\"off\"}","2");
+        }
+      else {
+        pinControl2State = LOW;
+        Serial.println("pinControl2State = LOW");
+        sendConfirmtoRetained("{\"Relay\":\"2\",\"Action\":\"on\"}","2");
+        }    
       digitalWrite(pinControl2, pinControl2State);
     }
   lasttouch2ReadingState = touch2Reading;
