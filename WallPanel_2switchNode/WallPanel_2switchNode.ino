@@ -90,7 +90,7 @@ char temptMac[20] = "";
 //--------------MQTT client PRAMETERS--------------
 //define mqtt server default values here, if there are different values in config.json, they are overwritten.
 char mqttServer[40] = ""; //April24
-char mqttPort[6] = ""; //April24
+char mqttPort[6] = "1883"; //April24
 char projectName[40] = "";
 char blynk_token[34] = "YOUR_BLYNK_TOKEN";
 //flag for saving data
@@ -116,13 +116,13 @@ bool simulatedDropedWifi = false;
 char relayID[2] = "";
 char relayCommand[5] = "";
 //---------CONTROL1 CONFIGURATION---------------------------------------
-int pinControl1 = D0;
+int pinControl1 = D6;
 int pinControl1State = HIGH;
 //---------CONTROL2 CONFIGURATION---------------------------------------
-int pinControl2 = D5;  
+int pinControl2 = D7;  
 int pinControl2State = HIGH;
 //---------TOUCH1 CONFIGURATION---------------------------------------
-int touch1 = D6;
+int touch1 = D0;
 unsigned long previousMillis6 = 0;
 unsigned long previousMillis7 = 0;
 int lasttouch1ReadingState = LOW;
@@ -131,7 +131,7 @@ int touch1State = LOW;
 bool isPressTouch1 = false;
 bool sendOnetime1 = true; // for 1st time startup, send to broker to reset the status
 //---------TOUCH2 CONFIGURATION---------------------------------------
-int touch2 = D7;
+int touch2 = D5;
 unsigned long previousMillis11 = 0;
 unsigned long previousMillis12 = 0;
 int lasttouch2ReadingState = LOW;
@@ -362,7 +362,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
                 i++;
       }     
       snprintf (temptCommand, 200, "[%s]: NO SYNTAX FOUND", breakedValue);
-      keepAlive(temptCommand);
+///     keepAlive(temptCommand);
   }
 //----------END case 1.2 of NORMAL MODE -----------------------
 }
@@ -415,7 +415,7 @@ void setup_wifi() {
     Serial.print(mac[4],HEX);
     Serial.print(":");
     Serial.println(mac[5],HEX);   
-    snprintf(temptMac, 20, "TMAiOT_%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    snprintf(temptMac, 20, "SPL-%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     Serial.println("Connecting to MQTT");
     Serial.print("MQTT SERVER: "); Serial.print(mqttServer);
     Serial.print(" MQTT PORT: "); Serial.println(mqttPort);
@@ -618,7 +618,7 @@ void loop() {
     
     WiFi.macAddress(mac);
     char temptSSID [20] = "";
-    snprintf(temptSSID, 20, "TMAiOT_%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    snprintf(temptSSID, 20, "SPL-%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     Serial.println(temptSSID);
 
     if (!wifiManager.autoConnect(temptSSID, password)) {
@@ -739,7 +739,7 @@ if ((millis() - touch1DebounceTime) > 200) {
       if (pinControl1State == LOW) {
         pinControl1State = HIGH;
         Serial.println("pinControl1State = HIGH");
-        sendConfirmtoRetained("{\"Relay\":\1\",\"Action\":\"off\"}","1");
+        sendConfirmtoRetained("{\"Relay\":\"1\",\"Action\":\"off\"}","1");
         }
       else{
         pinControl1State = LOW;
@@ -776,7 +776,7 @@ if ((millis() - touch2DebounceTime) > 200) {
       if (pinControl2State == LOW) {
         pinControl2State = HIGH;
         Serial.println ("pinControl2State = HIGH");
-        sendConfirmtoRetained("{\"Relay\":\2\",\"Action\":\"off\"}","2");
+        sendConfirmtoRetained("{\"Relay\":\"2\",\"Action\":\"off\"}","2");
         }
       else {
         pinControl2State = LOW;
