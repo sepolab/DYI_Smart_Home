@@ -46,6 +46,10 @@ RST Reset RST
   
   @author Sebastian sepolab@gmail.com
   @version 1.0 6/15/17
+########################################
+  - OTA Update.
+  
+  @version 1.1 6/15/17
 */
 
 #include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager version 0.11.0
@@ -57,6 +61,9 @@ RST Reset RST
 #include <PubSubClient.h> //April23 version 2.6.0
 #include "math.h"
 #include <Adafruit_NeoPixel.h>    //https://github.com/adafruit/Adafruit_NeoPixel version 1.1.1
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
 
 //---------SOFT RESET BUTTON PARAMETERS---------------------
 const int SOFT_RST_PIN =  D3;      // SOFT RESET button is map to port 0
@@ -425,8 +432,27 @@ void setup_wifi() {
     snprintf (subTopicGen, 50, "%s/%s/set", projectName, temptMac);
     Serial.print("Default Publish Topic: "); Serial.println(pubTopicGen);
     Serial.print("Default Subscribe Topic: "); Serial.println(subTopicGen);
+    
     reconnect(); //run for 1st register message
-//    updateCurrentStatus();
+    ArduinoOTA.onStart([]() {
+      Serial.println("Start");
+    });
+    ArduinoOTA.onEnd([]() {
+      Serial.println("\nEnd");
+    });
+    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    });
+    ArduinoOTA.onError([](ota_error_t error) {
+      Serial.printf("Error[%u]: ", error);
+      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+    });
+    ArduinoOTA.begin();
+  
   }
   else {
     Serial.print("Failed connect to AP. Code: ");
@@ -564,14 +590,14 @@ void setup() {
 } 
 //-------Apirl 23 2016------------
 
-//-------Apirl 23 2016------------
-
 void loop() {
 
   WiFiManager wifiManager;
   // read the state of the switch into a local variable:
   int reading = digitalRead(SOFT_RST_PIN);
 
+  ArduinoOTA.handle();
+  
   // check to see if you just pressed the button
   // (i.e. the input went from LOW to HIGH),  and you've waited
   // long enough since the last press to ignore any noise:
