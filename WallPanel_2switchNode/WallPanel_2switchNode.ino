@@ -6,7 +6,7 @@
   
   General Hardware:
   - BASE: 
-  -- WeMosD1mini/WeMosD1miniPro/WeMosD1Lite (required)
+  -- WeMosD1mini/WeMosD1miniPro(required if supported upgrade firmware via OTA) / WeMosD1Lite (no OTA support)
   - SHIELD:
   -- DYI 2switches shield (required) - used Port: D0;D5;D6;D7;RST;D3
   -- 1-BUTTON shield (optional) - used Port: D3
@@ -49,7 +49,7 @@ RST Reset RST
 ########################################
   - OTA Update.
   
-  @version 1.1 6/15/17
+  @version 1.1 7/15/17
 */
 
 #include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager version 0.11.0
