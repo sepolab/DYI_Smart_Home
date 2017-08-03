@@ -48,13 +48,13 @@ RST Reset                                   RST
   -- Command from MQTT Broker = {"tempterature":"","humidity":""}
   
   @author Tri Nguyen nductri@tma.com.vn
-  @version 1.0 8/3/17
+  @version 1.0.0 8/3/17
 ########################################
   - OTA Update: basic update via ArduinoOTA library
   - Impacted on:
     -- setup_wifi(): configurate OTA
     -- loop(): looping OTA checking
-  @version 1.1 7/15/17
+  @version 1.1.0 7/15/17
 */
 
 #include <Adafruit_Sensor.h>
@@ -310,7 +310,7 @@ void setup_wifi() {
   //if you get here you have connected to the WiFi
   if (WiFi.status() == WL_CONNECTED) {
     checkWifi = true;   
-    oledDisplayNodeStatus("Wi-Fi","  OK");
+    oledDisplayNodeStatus("Wi-Fi","READY");
     Serial.print("Connected at IP ");
     Serial.println(WiFi.localIP());
     WiFi.macAddress(mac);
@@ -384,7 +384,7 @@ void reconnect() {
       Serial.println("connected");
       //pixels.setPixelColor(0, pixels.Color(0, 0, 255)); // BLUE: done setup - GOOD STATE
       //pixels.show();
-      oledDisplayNodeStatus(" MQTT","  OK");
+      oledDisplayNodeStatus(" MQTT","READY");
       // Once connected, publish an announcement...
       char registerMessage[100] = "";
       snprintf (registerMessage, 100, "{\"ID\":\"%s\",\"type\":\"%s\",\"project\":\"%s\"}", temptMac,"Thermo",projectName);
@@ -454,7 +454,7 @@ void setup() {
 
   //--------Read Congiguration file-----------
   Serial.println("mounting FS...");
-  oledDisplayNodeStatus(" BOOT","  UP");
+  oledDisplayNodeStatus(" RUN","SETUP");
   //pixels.setPixelColor(0, pixels.Color(255, 0, 0)); // RED: SETUP
   //pixels.show();
   if (SPIFFS.begin()) {
@@ -532,7 +532,9 @@ void loop() {
     snprintf(nameAP, 20, "HOST:%s",APssid);
     display.println(nameAP);
     if (WiFi.status() == WL_CONNECTED) {
-      display.println("WiFi: OK");
+      display.print("PWR :");
+      display.print(WiFi.RSSI());
+      display.println("dB");
     } else {
       display.println("WiFi: BAD");
     }
@@ -541,7 +543,7 @@ void loop() {
     } else {
       display.println("MQTT: BAD");
     }
-    display.println("  V.1.0.0");
+    display.println("V1.1 (OTA)");
     display.display();    
     delayShowOLED = 10000;
   }
