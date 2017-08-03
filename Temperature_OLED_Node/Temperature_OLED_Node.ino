@@ -310,7 +310,7 @@ void setup_wifi() {
   //if you get here you have connected to the WiFi
   if (WiFi.status() == WL_CONNECTED) {
     checkWifi = true;   
-    oledDisplayNodeStatus("Wi-Fi","READY");
+    oledDisplayNodeStatus("Wi-Fi","READY","");
     Serial.print("Connected at IP ");
     Serial.println(WiFi.localIP());
     WiFi.macAddress(mac);
@@ -362,7 +362,7 @@ void setup_wifi() {
     checkWifi = false;
     //pixels.setPixelColor(0, pixels.Color(255, 255, 0)); // RED+GREEN = YELLOW = Wifi DISCONNECTING...
     //pixels.show();
-    oledDisplayNodeStatus("Wi-Fi","FALSE");
+    oledDisplayNodeStatus("Wi-Fi","FALSE","");
   }
 }
 /**
@@ -384,7 +384,7 @@ void reconnect() {
       Serial.println("connected");
       //pixels.setPixelColor(0, pixels.Color(0, 0, 255)); // BLUE: done setup - GOOD STATE
       //pixels.show();
-      oledDisplayNodeStatus(" MQTT","READY");
+      oledDisplayNodeStatus(" MQTT","READY","");
       // Once connected, publish an announcement...
       char registerMessage[100] = "";
       snprintf (registerMessage, 100, "{\"ID\":\"%s\",\"type\":\"%s\",\"project\":\"%s\"}", temptMac,"Thermo",projectName);
@@ -401,7 +401,7 @@ void reconnect() {
     else {
       //pixels.setPixelColor(0, pixels.Color(255, 0, 255)); // PINK: error in connecting MQTT server
       //pixels.show();
-      oledDisplayNodeStatus(" MQTT","FALSE");
+      oledDisplayNodeStatus(" MQTT","FALSE","");
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 10 seconds");
@@ -419,16 +419,23 @@ void reconnect() {
   @author Tri Nguyen
   @date June12017
 */
-void oledDisplayNodeStatus (char inputString1[], char inputString2[]) {
+void oledDisplayNodeStatus (char inputString1[], char inputString2[], char inputString3[]) {
   display.clearDisplay();
   display.setTextSize(2);
   display.setCursor(0, 0);
   display.setTextColor(WHITE);
   display.println(inputString1);
-  display.setTextSize(1);
+  display.setTextSize(0);
   display.println("  ------");
-  display.setTextSize(2);
-  display.println(inputString2);
+  if (inputString2[0]!= ' ') {
+    display.setTextSize(2);
+    display.println(inputString2);
+    display.setTextSize(1);
+    display.println(inputString3);
+  } else {
+    display.setTextSize(1);
+    display.println(inputString3);
+  }
   display.display();
 }
 
@@ -454,7 +461,7 @@ void setup() {
 
   //--------Read Congiguration file-----------
   Serial.println("mounting FS...");
-  oledDisplayNodeStatus(" RUN","SETUP");
+  oledDisplayNodeStatus(" RUN","SETUP", "ThermoNode");
   //pixels.setPixelColor(0, pixels.Color(255, 0, 0)); // RED: SETUP
   //pixels.show();
   if (SPIFFS.begin()) {
@@ -527,7 +534,7 @@ void loop() {
     char nameSSID [20] = "";
     snprintf(nameSSID, 20, "SPL-%02X%02X%02X", mac[3], mac[4], mac[5]);
     display.println(nameSSID);
-    display.println("  -----");
+    display.println("----------");
     char nameAP [20] = "";
     snprintf(nameAP, 20, "HOST:%s",APssid);
     display.println(nameAP);
@@ -560,7 +567,7 @@ void loop() {
     //in seconds
     //pixels.setPixelColor(0, pixels.Color(0, 255, 0)); //GREEN: WIFI CONFIGURE
     //pixels.show();
-    oledDisplayNodeStatus("Wi-Fi","SETUP");
+
     // The extra parameters to be configured (can be either global or just in the setup)
     // After connecting, parameter.getValue() will get you the configured value
     // id/name placeholder/prompt default length
@@ -587,7 +594,10 @@ void loop() {
     char temptSSID [20] = "";
     snprintf(temptSSID, 20, "SPL-%02X%02X%02X", mac[3], mac[4], mac[5]);
     Serial.println(temptSSID);
-
+    char quote1 [31] = "";
+    snprintf(quote1, 31, "TRY ACCESS  Wi-Fi   SPL-%02X%02X%02X", mac[3], mac[4], mac[5]);
+    oledDisplayNodeStatus("SETUP"," ",quote1);
+    
     if (!wifiManager.autoConnect(temptSSID, password)) {
       Serial.println("failed to connect existing SSID ...");
     }
@@ -622,7 +632,7 @@ void loop() {
         //end save
         //pixels.setdaPixelColor(0, pixels.Color(0, 255, 0)); //BLUE GOOD
         //pixels.show();
-        oledDisplayNodeStatus("Wi-Fi"," OK");
+        oledDisplayNodeStatus("Wi-Fi"," OK","");
       }
 
       ESP.reset();
