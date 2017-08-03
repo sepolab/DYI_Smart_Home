@@ -48,7 +48,7 @@ RST Reset                                   RST
   -- Command from MQTT Broker = {"tempterature":"","humidity":""}
   
   @author Tri Nguyen nductri@tma.com.vn
-  @version 1.0 6/15/17
+  @version 1.0 8/3/17
 ########################################
   - OTA Update: basic update via ArduinoOTA library
   - Impacted on:
@@ -71,6 +71,9 @@ RST Reset                                   RST
 #include <Adafruit_SSD1306.h> //https://github.com/mcauser/Adafruit_SSD1306/tree/esp8266-64x48
 #include <WEMOS_SHT3X.h> //https://github.com/wemos/WEMOS_SHT3x_Arduino_Library
 #include <Wire.h>
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
 //-------------------------------
 
 //---------SOFT RESET BUTTON PARAMETERS---------------------
@@ -334,6 +337,24 @@ void setup_wifi() {
     Serial.print("Default Publish Topic: "); Serial.println(pubTopicGen);
     Serial.print("Default Subscribe Topic: "); Serial.println(subTopicGen);
     reconnect(); //run for 1st register message
+    ArduinoOTA.onStart([]() {
+      Serial.println("Start");
+    });
+    ArduinoOTA.onEnd([]() {
+      Serial.println("\nEnd");
+    });
+    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    });
+    ArduinoOTA.onError([](ota_error_t error) {
+      Serial.printf("Error[%u]: ", error);
+      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+    });
+    ArduinoOTA.begin();
   }
   else {
     Serial.print("Failed connect to AP. Code: ");
@@ -485,6 +506,9 @@ void loop() {
   // read the state of the switch into a local variable:
   int reading = digitalRead(SOFT_RST_PIN);
 
+  if (WiFi.status() == WL_CONNECTED) {
+    ArduinoOTA.handle();
+  }
   // check to see if you just pressed the button
   // (i.e. the input went from LOW to HIGH),  and you've waited
   // long enough since the last press to ignore any noise:
@@ -631,6 +655,7 @@ void loop() {
       }
     }
     client.loop();
+
 
     unsigned long currentMillis5 = millis();
       if (currentMillis5 - previousMillis5 > delayShowOLED) {
