@@ -81,7 +81,8 @@ int lastButtonState = LOW;   // the previous reading from the input pin
 // will quickly become a bigger number than can be stored in an int.
 long lastDebounceTime = 0;  // the last time the output pin was toggled
 long debounceDelay = 2000;    // the debounce time; increase if the output flickers
-long configViewDelay = 700;
+long configViewDelay = 200;
+long delayShowOLED = 1500;
 //--------OLED INDICATION PARAMETERS--------------------
 #define OLED_RESET 0  // GPIO0
 Adafruit_SSD1306 display(OLED_RESET);
@@ -306,6 +307,7 @@ void setup_wifi() {
   //if you get here you have connected to the WiFi
   if (WiFi.status() == WL_CONNECTED) {
     checkWifi = true;   
+    oledDisplayNodeStatus("Wi-Fi","  OK");
     Serial.print("Connected at IP ");
     Serial.println(WiFi.localIP());
     WiFi.macAddress(mac);
@@ -321,14 +323,14 @@ void setup_wifi() {
     Serial.print(mac[4],HEX);
     Serial.print(":");
     Serial.println(mac[5],HEX);   
-    snprintf(temptMac, 20, "SPL-%02X%02X%02X%02X%02X%02X",  mac[3], mac[4], mac[5]);
+    snprintf(temptMac, 20, "SPL-%02X%02X%02X%02X%02X%02X",  mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     Serial.println("Connecting to MQTT");
     Serial.print("MQTT SERVER: "); Serial.print(mqttServer);
     Serial.print(" MQTT PORT: "); Serial.println(mqttPort);
     client.setServer(mqttServer, atoi(mqttPort)); //April23
     client.setCallback(callback); //April23
-    snprintf (pubTopicGen, 50, "SmartOffice/%s/state", temptMac);
-    snprintf (subTopicGen, 50, "SmartOffice/%s/set", temptMac);
+    snprintf (pubTopicGen, 50, "%s/%s/state", projectName, temptMac);
+    snprintf (subTopicGen, 50, "%s/%s/set",projectName, temptMac);
     Serial.print("Default Publish Topic: "); Serial.println(pubTopicGen);
     Serial.print("Default Subscribe Topic: "); Serial.println(subTopicGen);
     reconnect(); //run for 1st register message
@@ -361,12 +363,12 @@ void reconnect() {
       Serial.println("connected");
       //pixels.setPixelColor(0, pixels.Color(0, 0, 255)); // BLUE: done setup - GOOD STATE
       //pixels.show();
-      oledDisplayNodeStatus("Wi-Fi","  OK");
+      oledDisplayNodeStatus(" MQTT","  OK");
       // Once connected, publish an announcement...
       char registerMessage[100] = "";
       snprintf (registerMessage, 100, "{\"ID\":\"%s\",\"type\":\"%s\",\"project\":\"%s\"}", temptMac,"Thermo",projectName);
       char defaultTopic[50] = "";
-      snprintf (defaultTopic, 50, "SmartOffice/RegisterDevices");
+      snprintf (defaultTopic, 50, "%s/RegisterDevices", projectName);
       client.publish(defaultTopic, registerMessage, true);
       delay(200);
       // ... and resubscribe
@@ -378,7 +380,7 @@ void reconnect() {
     else {
       //pixels.setPixelColor(0, pixels.Color(255, 0, 255)); // PINK: error in connecting MQTT server
       //pixels.show();
-      oledDisplayNodeStatus("MQTT","FALL");
+      oledDisplayNodeStatus(" MQTT","FALSE");
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 10 seconds");
@@ -493,21 +495,31 @@ void loop() {
     lastDebounceTime = millis();
   }
 
-  if ((millis() - lastDebounceTime) > configViewDelay) {
+  if (((millis() - lastDebounceTime) > configViewDelay) and ((millis() - lastDebounceTime) < (debounceDelay - 100))) {
     display.clearDisplay();
     display.setTextSize(1);
     display.setCursor(0, 0);
     display.setTextColor(WHITE);
-    display.println("CONFIGURE:");
+    char nameSSID [20] = "";
+    snprintf(nameSSID, 20, "SPL-%02X%02X%02X", mac[3], mac[4], mac[5]);
+    display.println(nameSSID);
     display.println("  -----");
- //   char nameSSID [20] = "";
-//    snprintf(nameSSID, 20, "SPL-%02X%02X%02X", mac[3], mac[4], mac[5]);
-  //  display.println(nameSSID);
-    display.println("WiFi: OK");
-    display.println("MQTT: OK");
-    display.println("T: Thermo");
-    display.println("V: v1.1.0");
-    display.display();
+    char nameAP [20] = "";
+    snprintf(nameAP, 20, "HOST:%s",APssid);
+    display.println(nameAP);
+    if (WiFi.status() == WL_CONNECTED) {
+      display.println("WiFi: OK");
+    } else {
+      display.println("WiFi: BAD");
+    }
+    if (client.connected()) {
+      display.println("MQTT: OK");
+    } else {
+      display.println("MQTT: BAD");
+    }
+    display.println("  V.1.0.0");
+    display.display();    
+    delayShowOLED = 10000;
   }
 
   //--------RESET WIFI CONFIGURATION-------------------------------
@@ -610,8 +622,6 @@ void loop() {
         unsigned long currentMillis4 = millis();
         if (client.connected()) {
           sendThermoIndex(); 
-          char temptCommand[] = "Active";
-          keepAlive(temptCommand);
       }
       else {
         if ((currentMillis4 - previousMillis4 > reconnectInveral)) {
@@ -623,8 +633,10 @@ void loop() {
     client.loop();
 
     unsigned long currentMillis5 = millis();
-      if (currentMillis5 - previousMillis5 > 1500) {
+      if (currentMillis5 - previousMillis5 > delayShowOLED) {
         previousMillis5 = currentMillis5;
+        delayShowOLED = 1500;
+        if(sht30.get()==0){
         if (switchMode) {
           display.clearDisplay();
           display.setTextSize(2);
@@ -657,12 +669,10 @@ void loop() {
           display.setTextSize(3);
           display.print("%");
           switchMode = true;     
-        }
-    if(sht30.get()==0){
+        }  
       display.display();
-    }
       }
-    
+    }
   } else {
     setup_wifi();
   }
