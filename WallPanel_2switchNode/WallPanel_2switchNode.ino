@@ -596,7 +596,9 @@ void loop() {
   // read the state of the switch into a local variable:
   int reading = digitalRead(SOFT_RST_PIN);
 
-  ArduinoOTA.handle();
+  if (WiFi.status() == WL_CONNECTED) {
+    ArduinoOTA.handle();
+  }
   
   // check to see if you just pressed the button
   // (i.e. the input went from LOW to HIGH),  and you've waited
