@@ -384,7 +384,7 @@ void reconnect() {
       Serial.println("connected");
       //pixels.setPixelColor(0, pixels.Color(0, 0, 255)); // BLUE: done setup - GOOD STATE
       //pixels.show();
-      oledDisplayNodeStatus(" MQTT","READY","");
+      oledDisplayNodeStatus("MQTT","READY","");
       // Once connected, publish an announcement...
       char registerMessage[100] = "";
       snprintf (registerMessage, 100, "{\"ID\":\"%s\",\"type\":\"%s\",\"project\":\"%s\"}", temptMac,"Thermo",projectName);
