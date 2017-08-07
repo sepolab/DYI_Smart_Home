@@ -147,11 +147,7 @@ bool simulatedDropedWifi = false;
   @date June12017
 */
 void DTHCalculation() {
-
-  if (sht30.get()!=0) {
-    sensorState = false;
-  }
-  else {
+  if (sht30.get() == 0) {
     float humidity = sht30.humidity;
     Serial.println(humidity);
     float temperature = sht30.cTemp;
@@ -169,6 +165,9 @@ void DTHCalculation() {
     f2 = heatIndex - d1;
     d2 = (f2 * 10);
     snprintf (bufHeatIndex, 9, "%d.%01d", d1, d2);
+  }
+  else {
+    sensorState = false;
   }
 }
 
@@ -673,7 +672,7 @@ void loop() {
       if (currentMillis5 - previousMillis5 > delayShowOLED) {
         previousMillis5 = currentMillis5;
         delayShowOLED = 1500;
-        if(sht30.get()==0){
+      if (sht30.get() == 0) {
         if (switchMode) {
           display.clearDisplay();
           display.setTextSize(2);
