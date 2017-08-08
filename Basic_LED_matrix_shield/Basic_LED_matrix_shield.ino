@@ -13,6 +13,7 @@ int lastButtonState = LOW;   // the previous reading from the input pin
 long lastDebounceTime = 0;  // the last time the output pin was toggled
 long debounceDelay = 500;    // the debounce time; increase if the output flickers
 int switchMode = 0;
+int temptSwitchMode = 0;
 int buzzerPlay = 0;
 int z = 0;
 int xPin = A0;
@@ -31,27 +32,7 @@ void setup() {
   pinMode(buttonPin, INPUT_PULLUP); 
 }
 
-void turnLeft (int customIntensity, int customSpeed) {
-    mled.intensity=customIntensity;//change intensity
-    for (int z=0;z<8;z++){
-      for (int x=0;x<2;x++) {
-        for (int y=3;y>=0;y--) {
-          mled.dot((y+1)-z-x,4+y); // clean dot
-          mled.dot((y+1)-z-x,4-y); // clean dot
-        }
-      }
-      mled.display();
-      delay(customSpeed);
-      for (int x=0;x<2;x++) {
-        for (int y=3;y>=0;y--) {
-          mled.dot((y+1)-z-x,4+y,0); // clean dot
-          mled.dot((y+1)-z-x,4-y,0); // clean dot
-        }
-      }
-    }
-}
-
-void turnLeftNEW (int customIntensity, int customSpeed) {
+void turnRightNEW (int customIntensity, int customSpeed) {
     mled.intensity=customIntensity;//change intensity
       for (int x=0;x<2;x++) {
         for (int y=3;y>=0;y--) {
@@ -74,7 +55,7 @@ void turnLeftNEW (int customIntensity, int customSpeed) {
       }
 }
 
-void turnRightNEW (int customIntensity, int customSpeed) {
+void turnLeftNEW (int customIntensity, int customSpeed) {
     mled.intensity=customIntensity;//change intensity
       for (int x=0;x<2;x++) {
         for (int y=3;y>=0;y--) {
@@ -97,34 +78,9 @@ void turnRightNEW (int customIntensity, int customSpeed) {
       }    
 }
 
-void turnRight (int customIntensity, int customSpeed) {
+void turnUpNew (int customIntensity, int customSpeed) {
     mled.intensity=customIntensity;//change intensity
-    for (int z=0;z<8;z++){
-      for (int x=0;x<2;x++) {
-        for (int y=3;y>=0;y--) {
-          mled.dot((3-y)+z+x,4+y); // clean dot
-          mled.dot((3-y)+z+x,4-y); // clean dot
-        }
-      }
-      mled.display();
-      delay(customSpeed);
-      for (int x=0;x<2;x++) {
-        for (int y=3;y>=0;y--) {
-          mled.dot((3-y)+z+x,4+y,0); // clean dot
-          mled.dot((3-y)+z+x,4-y,0); // clean dot
-        }
-      }
-    }
-}
 
-void turnUp (int customIntensity, int customSpeed) {
-    mled.intensity=customIntensity;//change intensity
-    for (int x=0;x<8;x++) {
-     for (int y=0;y<8;y++) {
-        mled.dot(x,y,0); // clean dot
-      }
-    }
-    for (int z=0;z<8;z++){
       for (int x=0;x<2;x++) {
         for (int y=3;y>=0;y--) {
           mled.dot(4+y,(3-y)+z+x); 
@@ -132,42 +88,48 @@ void turnUp (int customIntensity, int customSpeed) {
         }
       }
       mled.display();
-      delay(customSpeed);
-      for (int x=0;x<2;x++) {
-        for (int y=3;y>=0;y--) {
-          mled.dot(4+y,(3-y)+z+x,0); // clean dot
-          mled.dot(4-y,(3-y)+z+x,0); // clean dot
+     unsigned long currentMillis1 = millis();
+      if (currentMillis1 - previousMillis1 > customSpeed) {
+        previousMillis1 = currentMillis1;      
+        for (int x=0;x<2;x++) {
+          for (int y=3;y>=0;y--) {
+            mled.dot(4+y,(3-y)+z+x,0); // clean dot
+            mled.dot(4-y,(3-y)+z+x,0); // clean dot
+          }
         }
+        z++;
+        if ( z == 8) { z=0;}
       }
-    }
-    mled.display();
 }
 
-void turnDown (int customIntensity, int customSpeed) {
+void turnDownNew (int customIntensity, int customSpeed) {
     mled.intensity=customIntensity;//change intensity
-    for (int z=0;z<8;z++){
       for (int x=0;x<2;x++) {
         for (int y=3;y>=0;y--) {
-          mled.dot(4+y,(y+1)-z-x); // clean dot
-          mled.dot(4-y,(y+1)-z-x); // clean dot
+          mled.dot(4+y,(y+1)-z-x); // draw dot
+          mled.dot(4-y,(y+1)-z-x); // draw dot
         }
       }
       mled.display();
-      delay(customSpeed);
-      for (int x=0;x<2;x++) {
-        for (int y=3;y>=0;y--) {
-          mled.dot(4+y,(y+1)-z-x,0); // clean dot
-          mled.dot(4-y,(y+1)-z-x,0); // clean dot
+     unsigned long currentMillis1 = millis();
+      if (currentMillis1 - previousMillis1 > customSpeed) {
+        previousMillis1 = currentMillis1; 
+        for (int x=0;x<2;x++) {
+          for (int y=3;y>=0;y--) {
+            mled.dot(4+y,(y+1)-z-x,0); // clean dot
+            mled.dot(4-y,(y+1)-z-x,0); // clean dot
+          }
         }
-      }
-    }
+        z++;
+        if ( z == 8) { z=0;}
+      } 
 }
 
 void activeBrake (int customIntensity) {
     mled.intensity=customIntensity;//change intensity
       for (int x=0;x<8;x++) {
         for (int y=0;y<8;y++) {
-          mled.dot(x,y); // clean dot
+          mled.dot(x,y); // draw dot
         }
       }
       mled.display();
@@ -184,21 +146,33 @@ void deActiveBrake () {
 
 void readingJoyStick () {
     if ((xPosition <= 320) and buttonRelease) {
-    switchMode = 1;
+    temptSwitchMode = 1;
     deActiveBrake();
   }
   if (xPosition >= 640 and buttonRelease) {
-    switchMode = 2; 
+    temptSwitchMode = 2; 
     deActiveBrake();
-  } 
+  }
   if (buttonStateJoy == 0) {
-    switchMode = 0; 
-  } 
-
+     temptSwitchMode = 0;
+  }
+  
+  if (yPosition == 0) {
+    activeBrake(7);
+    if (switchMode != 100) {
+      temptSwitchMode = switchMode;
+    }
+    switchMode = 100;
+  }
+   else {
+    deActiveBrake();
+    switchMode = temptSwitchMode;
+  }
+  
   xPosition = analogRead(xPin);
+  yPosition = digitalRead(yPin);
+  
   float checkPosition = previousXValue - xPosition;
-  Serial.println(abs(checkPosition));
-  Serial.println((checkPosition));
   if (abs(checkPosition) > 150) {
     buttonRelease = true;
   } else {
@@ -211,9 +185,9 @@ void readingJoyStick () {
 
 void loop() {
   if (switchMode ==1) {
-    turnRightNEW(5,60);
+    turnRightNEW(5,52);
   } else if (switchMode ==2) {
-    turnLeftNEW(5, 60);
+    turnLeftNEW(5, 52);
   } else if (switchMode ==0) { 
     deActiveBrake();
   }
