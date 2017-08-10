@@ -29,8 +29,9 @@ void setup() {
   digitalWrite(buzzer, LOW);
   pinMode(yPin, INPUT);
   pinMode(xPin, INPUT);
-  pinMode(buttonPin, INPUT_PULLUP); 
-}
+  pinMode(buttonPin, INPUT_PULLUP);
+ }
+
 
 void turnRightNEW (int customIntensity, int customSpeed) {
     mled.intensity=customIntensity;//change intensity
@@ -158,11 +159,10 @@ void readingJoyStick () {
   }
   
   if (yPosition == 0) {
-    activeBrake(7);
-    if (switchMode != 100) {
+    if (switchMode != 9) {
       temptSwitchMode = switchMode;
     }
-    switchMode = 100;
+    switchMode = 9;
   }
    else {
     deActiveBrake();
@@ -185,11 +185,13 @@ void readingJoyStick () {
 
 void loop() {
   if (switchMode ==1) {
-    turnRightNEW(5,52);
+    turnRightNEW(3,51);
   } else if (switchMode ==2) {
-    turnLeftNEW(5, 52);
+    turnLeftNEW(3, 51);
   } else if (switchMode ==0) { 
     deActiveBrake();
+  } else if (switchMode ==9) { 
+    activeBrake(7);
   }
   delay(50);
   readingJoyStick ();
