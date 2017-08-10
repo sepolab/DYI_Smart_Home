@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 /**
   SePoLab SMART Devices PROJECT
   Name: IRControlerNode
