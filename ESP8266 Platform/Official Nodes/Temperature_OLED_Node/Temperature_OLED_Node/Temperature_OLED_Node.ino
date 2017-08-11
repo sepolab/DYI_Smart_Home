@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 /**
   SEPOLAB SMART PROJECT
   Name: SPL-ThermoNode
