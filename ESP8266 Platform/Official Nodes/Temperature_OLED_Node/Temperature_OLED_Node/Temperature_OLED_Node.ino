@@ -11,19 +11,19 @@
   - Color PINK: WiFi is in Client Mode, but cannot connect to MQTT Broker Server due to Broker issue.
   - Color YELLOW: WiFi is in Client Mode, but cannot connect to WiFi due to WiFi Access Point issue.
  General Hardware:
-  - BASE: 
+  - BASE:
   -- WeMosD1mini/WeMosD1miniPro(required if supported upgrade firmware via OTA) / WeMosD1Lite (no OTA support)
   - SHIELD:
   -- DYI 2switches shield v1.1.0(required) - used Port: D1;D2;RST;D3
   -- 1-BUTTON shield v.2.0.0(optional) - used Port: D3
   -- OLED Shield v1.1.0 (required) - used Port: D1;D2 for I2C
   -- SHT30 Shield v1.0.0 (required) - used Port: D1;D2 for I2C
-  
+
   - CONNECTION:
   -- SOFT RESET BUTTON: D3 => use to reset WiFi or MQTT server connection
   -- OLED Shield uses D1;D2
   -- SHT30 shield uses D1; D2
-  
+
 Pin Function                          ESP-8266 Pin
 TX  TXD                                     TXD
 RX  RXD                                     RXD
@@ -46,7 +46,7 @@ RST Reset                                   RST
   -- Subcrible topic: <ProjectName>/<MacAddress>/set
   -- Publish topic: <ProjectName>/<MacAddress>/state
   -- Command from MQTT Broker = {"tempterature":"","humidity":""}
-  
+
   @author Tri Nguyen nductri@tma.com.vn
   @version 1.0.0 8/3/17
 ########################################
@@ -308,7 +308,7 @@ void setup_wifi() {
   delay(5000);
   //if you get here you have connected to the WiFi
   if (WiFi.status() == WL_CONNECTED) {
-    checkWifi = true;   
+    checkWifi = true;
     oledDisplayNodeStatus("Wi-Fi","READY","");
     Serial.print("Connected at IP ");
     Serial.println(WiFi.localIP());
@@ -324,7 +324,7 @@ void setup_wifi() {
     Serial.print(":");
     Serial.print(mac[4],HEX);
     Serial.print(":");
-    Serial.println(mac[5],HEX);   
+    Serial.println(mac[5],HEX);
     snprintf(temptMac, 20, "SPL-%02X%02X%02X%02X%02X%02X",  mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     Serial.println("Connecting to MQTT");
     Serial.print("MQTT SERVER: "); Serial.print(mqttServer);
@@ -443,7 +443,7 @@ void setup() {
   pinMode(SOFT_RST_PIN, INPUT); //SET GPIO 0 IS SOFT RESET PIN AND IS INPUT
   Serial.begin(115200); //start Serial
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  
+
   //WiFiManager
   //Local intialization. Once its business is done, there is no need to keep it around
   //    WiFiManager wifiManager;
@@ -482,7 +482,7 @@ void setup() {
         if (json.success()) {
           Serial.println("\nparsed config parameters");
           strcpy(APssid, json["APssid"]);
-          strcpy(APpassword, json["APpassword"]);          
+          strcpy(APpassword, json["APpassword"]);
           strcpy(mqttServer, json["mqttServer"]);
           strcpy(mqttPort, json["mqttPort"]);
           strcpy(projectName, json["projectName"]);
@@ -504,7 +504,7 @@ void setup() {
   }
 }
 //--------END Read Congiguration file-----------
-} 
+}
 //-------Apirl 23 2016------------
 
 void loop() {
@@ -550,7 +550,7 @@ void loop() {
       display.println("MQTT: BAD");
     }
     display.println("V1.1 (OTA)");
-    display.display();    
+    display.display();
     delayShowOLED = 10000;
   }
 
@@ -588,7 +588,7 @@ void loop() {
 //    wifiManager.addParameter(&custom_blynk_token);
     wifiManager.addParameter(&custom_project_name);
 //    wifiManager.addParameter(&custom_GeneralPublish_topic);
-    
+
     WiFi.macAddress(mac);
     char temptSSID [20] = "";
     snprintf(temptSSID, 20, "SPL-%02X%02X%02X", mac[3], mac[4], mac[5]);
@@ -596,7 +596,7 @@ void loop() {
     char quote1 [31] = "";
     snprintf(quote1, 31, "TRY ACCESS  Wi-Fi   SPL-%02X%02X%02X", mac[3], mac[4], mac[5]);
     oledDisplayNodeStatus("SETUP"," ",quote1);
-    
+
     if (!wifiManager.autoConnect(temptSSID, password)) {
       Serial.println("failed to connect existing SSID ...");
     }
@@ -656,7 +656,7 @@ void loop() {
         previousMillis3 = currentMillis3;
         unsigned long currentMillis4 = millis();
         if (client.connected()) {
-          sendThermoIndex(); 
+          sendThermoIndex();
       }
       else {
         if ((currentMillis4 - previousMillis4 > reconnectInveral)) {
@@ -675,6 +675,7 @@ void loop() {
       if (sht30.get() == 0) {
         if (switchMode) {
           display.clearDisplay();
+          display.set
           display.setTextSize(2);
           display.setCursor(0, 0);
           display.setTextColor(WHITE);
@@ -704,8 +705,8 @@ void loop() {
           display.print(" ");
           display.setTextSize(3);
           display.print("%");
-          switchMode = true;     
-        }  
+          switchMode = true;
+        }
       display.display();
       }
     }
